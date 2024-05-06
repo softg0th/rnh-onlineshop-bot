@@ -59,15 +59,16 @@ def send_menu_types(callback):
                 db.add_click(category_id)
                 message_container = []
                 for item in items:
-                    formatted_item = (f'*{item['name']}.*\n'
-                                      f'Описание: {item['description']}\n'
+                    formatted_item = (f'*С учетом ваших требований, мы рекомендуем следующий тренажер как '
+                                      f'наиболее подходящий для ваших нужд: {item['name']}.*\n'
+                                      f'Описание товара: {item['description']}\n'
                                       f'[Заказать]({item['url']})\n'
-                                      f'{item['photo']}\n')
+                                      f'{types.InputMediaPhoto(item['photo']).media}\n')
                     message_container.append(formatted_item)
                 message_container = ''.join(message_container)
                 bot.edit_message_text(chat_id=callback.message.chat.id,
                                       message_id=callback.message.message_id,
-                                      text=f"Товары: {message_container}",
+                                      text=f"{message_container}",
                                       parse_mode='Markdown')
             except Exception as ex:
                 print(ex)
