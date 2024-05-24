@@ -11,5 +11,17 @@ class DbCRUDInterface(ABC):
         pass
 
     @abstractmethod
+    def insert_user(self, user_object) -> bool:
+        pass
+
+    @abstractmethod
+    def drop_user(self, chat_id) -> bool:
+        pass
+
+    @abstractmethod
+    def update_user_cats(self, chat_id, category_id):
+        pass
+
+    @abstractmethod
     def add_click(self, category_id) -> None:
         pass

@@ -15,7 +15,16 @@ class UserLevel:
     level: int
 
 
+@dataclass
+class UserInfo:
+    chat_id: int
+    age: int
+    sex: str
+    unsigned: bool
+
+
 user_level = UserLevel(-1)
+user_info = UserInfo(-1, -1, 'None', True)
 
 
 def create_menu(btn_list: dict) -> types.InlineKeyboardMarkup:
@@ -29,6 +38,21 @@ def create_menu(btn_list: dict) -> types.InlineKeyboardMarkup:
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message, common_messages.get('hello'))
+
+
+@bot.message_handler(commands=['registration'])
+def registrate_user(message):
+    levels = {'Мужчина': 'm', 'Женщина': 'f'}
+
+    markup = create_menu(levels)
+    user_info.chat_id = message.chat.id
+
+    bot.send_message(message.chat.id, 'Выберите свой пол', reply_markup=markup)
+
+
+@bot.message_handler(commands=['resignation'])
+def resignate_user(message):
+    db.drop_user(message.chat.id)
 
 
 @bot.message_handler(commands=['choice'])
@@ -77,7 +101,7 @@ def send_menu_types(callback):
                                       text=f"Внутренняя ошибка!")
             user_level.level = -1
 
-        else:
+        elif not user_info.unsigned:
             user_level.level = int(callback.data)
             goal = {
                 'Похудение': "lose",
@@ -88,11 +112,28 @@ def send_menu_types(callback):
             bot.edit_message_text(chat_id=callback.message.chat.id, message_id=callback.message.message_id,
                                   text="Выберите цель тренировки",
                                   reply_markup=create_menu(goal))
+        else:
+            user_info.sex = callback.data
+            print(user_info.chat_id)
+            bot.send_message(chat_id=user_info.chat_id, text='Введите ваш возраст:')
 
 
 @bot.message_handler(content_types=['text'])
 def reply_to_text(message):
-    bot.reply_to(message, common_messages.get('error'))
+    if user_info.unsigned:
+        if message.text.isdigit():
+            user_info.age = int(message.text)
+            user_info.unsigned = True
+            user_object = {
+                'chat_id': user_info.chat_id,
+                'age': user_info.age,
+                'sex': user_info.sex,
+                'categories': []
+            }
+            db.insert_user(user_object)
+            bot.reply_to(message, 'Регистрация успешна!')
+    else:
+        bot.reply_to(message, common_messages.get('error'))
 
 
 db = DbCrud()
