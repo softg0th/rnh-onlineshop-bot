@@ -20,6 +20,16 @@ class DbCrud(DbCRUDInterface):
                                'photo': item.get('photo')})
         return items_data
 
+    def get_user(self, chat_id) -> bool:
+        try:
+            new_user = users_collection.find_one({'chat_id': chat_id})
+            print("new user", new_user)
+            if new_user:
+                return True
+        except Exception:
+            return False
+        return False
+
     def insert_user(self, user_object) -> bool:
         try:
             users_collection.insert_one(user_object)

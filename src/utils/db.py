@@ -9,3 +9,5 @@ database = client[DB_NAME]
 items_collection = database['items']
 categories_collection = database['categories']
 users_collection = database['users']
+
+
